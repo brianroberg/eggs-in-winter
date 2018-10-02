@@ -7,13 +7,13 @@ RTC_PCF8523 rtc;
 //char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 volatile boolean alarmFlagNeedsReset = false;
-volatile
 boolean lightsOn = false;
 int onboardLEDState = LOW;
 DateTime sunrise, sunset, startTime;
-byte duration;
-
 boolean isVerbose = false;
+
+// Iteration variable we'll use to track where we are in the schedule
+int i;
 
 /*
  * Sunrise and sunset schedule
@@ -40,19 +40,6 @@ const byte sunTimes[16][6] = {
   {10, 9, 6, 16, 17, 42}
 };
 
-// Iteration variable we'll use to track where we are in the schedule
-int i;
-
-/* Variables to override normal schedule for testing purposes
- */
- /*
-byte onDay = 11;
-byte onHour = 21;  
-byte onMinute = 16;
-byte offDay = 11;
-byte offHour = 21;
-byte offMinute = 17;
-*/
 
 void setup() {
   pinMode(13, OUTPUT); // the on-board LED
@@ -121,48 +108,7 @@ void setup() {
 
   printAlarmSetting();
 
-  /*
-  write_i2c_register(PCF8523_ADDRESS, 0x0A, bin2bcd(56));
-  val = read_i2c_register(PCF8523_ADDRESS, 0x0A);
-  Serial.print("Minute alarm register after write = ");
-  Serial.println(bcd2bin(val));
-  */
-
-  /*
-  val = 2;
-  Wire.beginTransmission(PCF8523_ADDRESS);
-  Wire.write((byte)reg);
-  Wire.write((byte)val);
-  Wire.endTransmission();
-  Serial.println("register set");
-
-  Wire.beginTransmission(PCF8523_ADDRESS);
-  Wire.write(reg);
-  Wire.endTransmission();
   
-  Wire.requestFrom((uint8_t)PCF8523_ADDRESS, (uint8_t)1);
-  val = Wire.read();
-
-  Serial.print("val = ");
-  Serial.println(val);
-  */
-  /*
-  mode >>= 3;
-  mode &= 0x7;
-  */
-
-  /*
-  Pcf8523SqwPinMode mode = rtc.readSqwPinMode();
-  Serial.print("Sqw Pin Mode: ");
-  Serial.println(mode);
-  */
-
-  /*
-  rtc.writeSqwPinMode(PCF8523_OFF);
-  mode = rtc.readSqwPinMode();
-  Serial.print("Sqw Pin Mode: ");
-  Serial.println(mode);
-  */
   analogWrite(9, 0);  
   
   DateTime now = rtc.now();
@@ -208,16 +154,6 @@ void setup() {
     }
     break;
   }
-
-/* Setup code from algorithm-based version
-  showDate("now in setup", now);
-  nextStartTime = getNextStartTime(now);
-  showDate("nextStartTime in setup", nextStartTime);
-  setRTCAlarm(nextStartTime.day(), nextStartTime.hour(), nextStartTime.minute());
-  //setRTCAlarm(onDay, onHour, onMinute); // for testing
-*/
-
-
 }
 
 void alarmISR() {
@@ -409,12 +345,6 @@ void loop() {
   }
    
 } 
-
-
-
-
-
-
 
 
 void turnLightsOn(){
