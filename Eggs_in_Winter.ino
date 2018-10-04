@@ -84,18 +84,19 @@ void hardwareSetup(){
   Serial.print("Weekday = ");
   Serial.println(val);
 
-  printAlarmSetting();
+  //printAlarmSetting();
 }
 
 void setup() {
 
   hardwareSetup();
+
+  // Set the RTC to a certain time for debugging.
+  rtc.adjust(DateTime(2018, 10, 4, 3, 47, 50));
   
   analogWrite(9, 0);  
   
   DateTime now = rtc.now();
-  //uint32_t nowUnix = now.unixtime();
-  //DateTime now = DateTime(2018, 10, 1, 0, 0, 0); // for testing
   for (i=0; i<220; i++){
     
     if (isVerbose) {
@@ -103,12 +104,11 @@ void setup() {
       Serial.println(i);
     }
     setLightingTimes();
-    showDate("now", now);
-    Serial.print("now.unixtime() = ");
-    Serial.println(now.unixtime());
-    showDate("sunrise", sunrise);
-    Serial.print("sunrise.unixtime() = ");
-    Serial.println(sunrise.unixtime());                            
+    if (isVerbose){
+      showDate("now", now);
+      showDate("sunrise", sunrise);
+    }
+                            
     // Check whether this day's lighting period is already past.
     if (now.unixtime() > sunrise.unixtime()){
       if (isVerbose){
@@ -175,7 +175,6 @@ void printAlarmSetting() {
 void resetAlarmFlag() {
   write_i2c_register(PCF8523_ADDRESS, PCF8523_CONTROL_2, B01110000);
   alarmFlagNeedsReset = false;
-
 }
 
 
@@ -247,14 +246,12 @@ void write_i2c_register(uint8_t addr, uint8_t reg, uint8_t val) {
 }
 
 void setRTCAlarm(uint8_t day, uint8_t hour, uint8_t minute){
-  /*
   Serial.print("setting alarm to day = ");
   Serial.print(day);
   Serial.print(", hour = ");
   Serial.print(hour);
   Serial.print(", minute = ");
   Serial.println(minute);
-  */
   write_i2c_register(PCF8523_ADDRESS, 0x0C, bin2bcd(day));
   write_i2c_register(PCF8523_ADDRESS, 0x0B, bin2bcd(hour));
   write_i2c_register(PCF8523_ADDRESS, 0x0A, bin2bcd(minute));
@@ -262,7 +259,6 @@ void setRTCAlarm(uint8_t day, uint8_t hour, uint8_t minute){
 
 void setLightingTimes(){
   int y;
-  Serial.println("in setLightingTimes()");
   if (sunTimes[i][0] > 6){
       y = 2018;
     }
@@ -298,12 +294,14 @@ void loop() {
   Serial.flush();
   attachInterrupt(digitalPinToInterrupt(1), alarmISR, FALLING);
   LowPower.powerDown(SLEEP_FOREVER, ADC_ON, BOD_OFF);
-  /*
+
+  /* For debugging (also comment out powerdown statement above)
   while (!alarmFlagNeedsReset){
     showDate("waiting for lights-on interrupt", rtc.now());
     delay(1000);
   }
   */
+  
   detachInterrupt(digitalPinToInterrupt(1));
   onboardLEDState = LOW;
   digitalWrite(13, onboardLEDState);
@@ -325,6 +323,7 @@ void loop() {
   else{
     // Time to turn on the light
     resetAlarmFlag();
+    lightsOn = true;
     turnLightsOn();
   }
    
@@ -340,7 +339,6 @@ void turnLightsOn(){
   //setRTCAlarm(offDay, offHour, offMinute); // for testing
   if (isVerbose){
     Serial.println("Setting alarm to lights off time.");
-    printAlarmSetting();
     Serial.println("Beginning delay loop to wait for lights-off interrupt.");
   }
   attachInterrupt(digitalPinToInterrupt(1), alarmISR, FALLING);
