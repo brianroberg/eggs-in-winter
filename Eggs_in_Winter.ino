@@ -1,6 +1,10 @@
 #include <Wire.h>
 #include "RTClib.h"
 #include "LowPower.h"
+
+// Other files specific to this project
+#include "Schedule.h"
+
 #define PCF8523_CONTROL_1 0x00
 #define PCF8523_CONTROL_2 0x01
 RTC_PCF8523 rtc;
@@ -10,36 +14,10 @@ volatile boolean alarmFlagNeedsReset = false;
 boolean lightsOn = false;
 int onboardLEDState = LOW;
 DateTime sunrise, sunset, startTime;
-boolean isVerbose = false;
+boolean isVerbose = true;
 
 // Iteration variable we'll use to track where we are in the schedule
 int i;
-
-/*
- * Sunrise and sunset schedule
- * We will calculate our lighting schedule from this.
- */
-const byte sunTimes[16][6] = {
-  // month, day, rise hour, rise minute, set hour, set minute
-  // always in standard time (no DST)
-  {8, 11, 5, 18, 19, 15},
-  {8, 12, 5, 19, 19, 14},
-  {9, 26, 6, 3, 18, 2},
-  {9, 27, 6, 4, 18, 0},
-  {9, 28, 6, 5, 17, 58},
-  {9, 29, 6, 6, 17, 57},
-  {9, 30, 6, 7, 17, 55},
-  {10, 1, 6, 8, 17, 53},
-  {10, 2, 6, 9, 17, 52},
-  {10, 3, 6, 10, 17, 50},
-  {10, 4, 6, 11, 17, 48},
-  {10, 5, 6, 12, 17, 47},
-  {10, 6, 6, 13, 17, 45},
-  {10, 7, 6, 14, 17, 44},
-  {10, 8, 6, 15, 17, 42},
-  {10, 9, 6, 16, 17, 42}
-};
-
 
 void setup() {
   pinMode(13, OUTPUT); // the on-board LED
