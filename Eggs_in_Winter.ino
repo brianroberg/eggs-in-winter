@@ -19,7 +19,7 @@ boolean isVerbose = true;
 // Iteration variable we'll use to track where we are in the schedule
 int i;
 
-void setup() {
+void hardwareSetup(){
   pinMode(13, OUTPUT); // the on-board LED
   pinMode(9, OUTPUT); // the LED strip
   pinMode(1, INPUT_PULLUP); // external interrupt from the RTC
@@ -85,7 +85,11 @@ void setup() {
   Serial.println(val);
 
   printAlarmSetting();
+}
 
+void setup() {
+
+  hardwareSetup();
   
   analogWrite(9, 0);  
   
