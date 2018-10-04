@@ -92,7 +92,7 @@ void setup() {
   hardwareSetup();
 
   // Set the RTC to a certain time for debugging.
-  rtc.adjust(DateTime(2018, 10, 4, 3, 47, 50));
+  //rtc.adjust(DateTime(2018, 10, 4, 6, 38, 50));
   
   analogWrite(9, 0);  
   
