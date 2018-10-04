@@ -247,12 +247,14 @@ void write_i2c_register(uint8_t addr, uint8_t reg, uint8_t val) {
 }
 
 void setRTCAlarm(uint8_t day, uint8_t hour, uint8_t minute){
+  /*
   Serial.print("setting alarm to day = ");
   Serial.print(day);
   Serial.print(", hour = ");
   Serial.print(hour);
   Serial.print(", minute = ");
   Serial.println(minute);
+  */
   write_i2c_register(PCF8523_ADDRESS, 0x0C, bin2bcd(day));
   write_i2c_register(PCF8523_ADDRESS, 0x0B, bin2bcd(hour));
   write_i2c_register(PCF8523_ADDRESS, 0x0A, bin2bcd(minute));
